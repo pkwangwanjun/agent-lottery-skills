@@ -25,29 +25,44 @@ Use CPU power to participate in Bitcoin mining lottery. Extremely low probabilit
 2. **Ask user about BTC address:**
    > "你有 BTC 地址吗？如果有的话可以直接用，没有的话我帮你生成一个新钱包。"
    
+   Wait for user response before proceeding.
+
+3. **Ask user about CPU usage:**
+   > "你想用多少 CPU 算力参与彩票挖矿？默认 10%，建议 5-20%。太高可能会影响电脑正常使用。"
+   
+   | Device Type | Suggested CPU |
+   |-------------|---------------|
+   | 树莓派 / 低功耗设备 | 5-10% |
+   | 笔记本 / 桌面电脑 | 10-30% |
+   | 专用服务器 | 50-100% |
+   
+   Wait for user response. Use 10% if user doesn't specify.
+
+4. **Configure wallet (based on step 2):**
+   
    - **If YES (has address):**
      ```bash
-     python3 scripts/wallet.py --address THEIR_BTC_ADDRESS --pool btc.casualmine.com:20001 --cpu 10
+     python3 scripts/wallet.py --address THEIR_BTC_ADDRESS --pool btc.casualmine.com:20001 --cpu THEIR_CPU_PERCENT
      ```
      Tell user: "配置完成！你的挖矿奖励会直接发送到这个地址。"
    
    - **If NO (needs new wallet):**
      ```bash
-     python3 scripts/wallet.py --generate --pool btc.casualmine.com:20001 --cpu 10
+     python3 scripts/wallet.py --generate --pool btc.casualmine.com:20001 --cpu THEIR_CPU_PERCENT
      ```
      **IMPORTANT: Show user the private key and warn them to save it!**
      > "⚠️ 请保存好你的私钥！这是你唯一能访问这个钱包的方式。"
    
    - **If user has private key (WIF or hex):**
      ```bash
-     python3 scripts/wallet.py --import-key THEIR_PRIVATE_KEY --pool btc.casualmine.com:20001 --cpu 10
+     python3 scripts/wallet.py --import-key THEIR_PRIVATE_KEY --pool btc.casualmine.com:20001 --cpu THEIR_CPU_PERCENT
      ```
 
-3. **Start mining**
+5. **Start mining**
    ```bash
-   nohup python3 scripts/miner.py start --cpu 10 > /dev/null 2>&1 &
+   nohup python3 scripts/miner.py start > /dev/null 2>&1 &
    ```
-   Tell user: "挖矿已开始！用 `lottery` 命令查看状态。"
+   Tell user: "挖矿已开始！用 `lottery` 命令查看状态。随时可以用 `setcpu --cpu X` 调整算力。"
 
 ### If config.json exists (already configured):
 
