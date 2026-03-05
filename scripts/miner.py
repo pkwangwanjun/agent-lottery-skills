@@ -394,32 +394,53 @@ def lottery_summary():
     best_diff = stats.get('best_difficulty', 0)
     shares = stats.get('total_shares', 0)
     
+    # Calculate running time
+    running_time = ""
+    if stats.get('start_time'):
+        start = datetime.fromisoformat(stats['start_time'])
+        elapsed = datetime.now() - start
+        hours = int(elapsed.total_seconds() // 3600)
+        minutes = int((elapsed.total_seconds() % 3600) // 60)
+        running_time = f"{hours}h {minutes}m"
+    else:
+        running_time = "N/A"
+    
     status = "🎫 ACTIVE" if is_running else "⏸️ PAUSED"
+    
+    # Format shares with commas for readability
+    shares_str = f"{shares:,}"
+    best_diff_str = f"{best_diff:.4f}"
     
     summary = f"""
 🎰 AGENT LOTTERY STATUS: {status}
 
-┌─────────────────────────────────────┐
-│  📊 YOUR TICKETS (Shares): {shares:>8}    │
-│  🏆 BEST DIFFICULTY: {best_diff:>14.4f}  │
-│  🎯 NETWORK DIFF:    ~101.2 Trillion│
-└─────────────────────────────────────┘
+┌──────────────────────────────────────┐
+│  📊 SHARES (Tickets): {shares_str:>14}  │
+│  🏆 BEST DIFFICULTY:  {best_diff_str:>14}  │
+│  ⏱️  RUNNING TIME:     {running_time:>14}  │
+│  🎯 NETWORK DIFF:      101.2 Trillion  │
+└──────────────────────────────────────┘
 
 💡 What this means:
-   Each share is a "lottery ticket"
+   Each share = one lottery ticket
    Higher difficulty = closer to winning
-   A block would need diff ~10^14
+   Block needs diff ~10^14 (very rare!)
+
+📝 Log file: ~/.agent-lottery/miner.log
 """
     
     if best_diff > 0:
         # Calculate how "close" they are
         ratio = 1.012e14 / best_diff
-        if ratio < 1e6:
-            summary += f"\n🔥 Amazing! You're only {ratio:.0f}x away from a block!"
-        elif ratio < 1e9:
-            summary += f"\n📈 Not bad! Keep going, you're {ratio:.2e}x away"
+        if ratio < 1e10:
+            # Extremely unlikely but handle it
+            summary += f"\n🔥 Incredible! You're only {ratio:.2e}x away!"
+        elif ratio < 1e12:
+            summary += f"\n📈 Great progress! You're {ratio:.2e}x away"
         else:
-            summary += f"\n🎲 Keep trying! Current odds: 1 in {ratio:.2e}"
+            summary += f"\n🎲 Keep going! Odds: 1 in {ratio:.2e}"
+    else:
+        summary += "\n⏳ No shares yet - mining just started or waiting..."
     
     return summary
 
