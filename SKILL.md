@@ -1,13 +1,13 @@
 ---
 name: agent-lottery
-description: Bitcoin solo mining "lottery" skill. Use when users want to (1) mine Bitcoin with CPU for lottery-style chance at blocks, (2) set up or manage BTC wallet for mining, (3) check mining statistics or lottery status, (4) configure CPU usage for mining, (5) ask about "彩票" / lottery mining, or (6) dynamically adjust CPU while mining. NOT for serious mining operations - this is entertainment-only solo mining with extremely low probability of finding blocks.
+description: Bitcoin solo mining "lottery" skill. Use when users want to (1) mine Bitcoin with CPU for lottery-style chance at blocks, (2) set up or manage BTC wallet for mining, (3) check mining statistics or lottery status, (4) configure CPU usage for mining, (5) ask about "lottery" / lottery mining, or (6) dynamically adjust CPU while mining. NOT for serious mining operations - this is entertainment-only solo mining with extremely low probability of finding blocks.
 ---
 
 # Agent Lottery - Bitcoin Solo Mining Lottery
 
 Use CPU power to participate in Bitcoin mining lottery. Extremely low probability but zero cost entertainment - if you hit a block, you get the full 3.125 BTC reward (~$150,000+).
 
-## 🚀 First-Time Setup Workflow
+## First-Time Setup Workflow
 
 **When user first mentions lottery mining, check if `data/config.json` exists:**
 
@@ -23,18 +23,18 @@ Use CPU power to participate in Bitcoin mining lottery. Extremely low probabilit
    ```
 
 2. **Ask user about BTC address:**
-   > "你有 BTC 地址吗？如果有的话可以直接用，没有的话我帮你生成一个新钱包。"
+   > "Do you have a BTC address? If yes, we can use it directly. If no, I'll generate a new wallet for you."
    
    Wait for user response before proceeding.
 
 3. **Ask user about CPU usage:**
-   > "你想用多少 CPU 算力参与彩票挖矿？默认 10%，建议 5-20%。太高可能会影响电脑正常使用。"
+   > "How much CPU would you like to use for lottery mining? Default is 10%, recommended 5-20%. Higher values may affect normal computer usage."
    
    | Device Type | Suggested CPU |
    |-------------|---------------|
-   | 树莓派 / 低功耗设备 | 5-10% |
-   | 笔记本 / 桌面电脑 | 10-30% |
-   | 专用服务器 | 50-100% |
+   | Raspberry Pi / Low-power devices | 5-10% |
+   | Laptop / Desktop | 10-30% |
+   | Dedicated server | 50-100% |
    
    Wait for user response. Use 10% if user doesn't specify.
 
@@ -44,14 +44,14 @@ Use CPU power to participate in Bitcoin mining lottery. Extremely low probabilit
      ```bash
      python3 scripts/wallet.py --address THEIR_BTC_ADDRESS --pool btc.casualmine.com:20001 --cpu THEIR_CPU_PERCENT
      ```
-     Tell user: "配置完成！你的挖矿奖励会直接发送到这个地址。"
+     Tell user: "Configuration complete! Mining rewards will be sent directly to this address."
    
    - **If NO (needs new wallet):**
      ```bash
      python3 scripts/wallet.py --generate --pool btc.casualmine.com:20001 --cpu THEIR_CPU_PERCENT
      ```
      **IMPORTANT: Show user the private key and warn them to save it!**
-     > "⚠️ 请保存好你的私钥！这是你唯一能访问这个钱包的方式。"
+     > "Please save your private key securely! This is the only way to access this wallet."
    
    - **If user has private key (WIF or hex):**
      ```bash
@@ -62,7 +62,7 @@ Use CPU power to participate in Bitcoin mining lottery. Extremely low probabilit
    ```bash
    nohup python3 scripts/miner.py start > /dev/null 2>&1 &
    ```
-   Tell user: "挖矿已开始！用 `lottery` 命令查看状态。随时可以用 `setcpu --cpu X` 调整算力。"
+   Tell user: "Mining started! Use 'lottery' command to check status. You can adjust CPU anytime with 'setcpu --cpu X'."
 
 ### If config.json exists (already configured):
 
@@ -72,10 +72,10 @@ Just run `lottery` to show current status.
 
 | Platform | Mining | CPU Limiting |
 |----------|--------|--------------|
-| Linux (x86_64, ARM) | ✅ Full | ✅ cpulimit |
-| macOS (Intel, Apple Silicon) | ✅ Full | ✅ cpulimit (via brew) |
-| Windows (WSL) | ✅ Full | ✅ cpulimit |
-| Windows (native) | ⚠️ Manual | ⚠️ Requires 3rd party tool |
+| Linux (x86_64, ARM) | Full | cpulimit |
+| macOS (Intel, Apple Silicon) | Full | cpulimit (via brew) |
+| Windows (WSL) | Full | cpulimit |
+| Windows (native) | Manual | Requires 3rd party tool |
 
 ## Quick Commands
 
