@@ -12,6 +12,7 @@ import re
 import time
 import signal
 import sys
+import urllib.request
 from datetime import datetime
 
 # Config file path
@@ -55,6 +56,28 @@ def check_cpulimit():
         return False
     except:
         return True
+
+
+def get_network_difficulty():
+    """Fetch current BTC network difficulty from public API"""
+    try:
+        with urllib.request.urlopen('https://blockchain.info/q/getdifficulty', timeout=10) as resp:
+            return float(resp.read().decode().strip())
+    except:
+        # Fallback to recent estimate if API fails
+        return 1.44e14
+
+
+def format_difficulty(diff):
+    """Format difficulty with trillion/billion suffix"""
+    if diff >= 1e12:
+        return f"{diff/1e12:.2f}T"
+    elif diff >= 1e9:
+        return f"{diff/1e9:.2f}B"
+    elif diff >= 1e6:
+        return f"{diff/1e6:.2f}M"
+    else:
+        return f"{diff:.2f}"
 
 
 def get_mining_status():
@@ -326,11 +349,13 @@ def show_status():
         
         # Lottery context
         best_diff = stats.get('best_difficulty', 0)
+        network_diff = get_network_difficulty()
+        network_diff_fmt = format_difficulty(network_diff)
         print(f"\n🎰 Lottery Context:")
-        print(f"   BTC Network Difficulty: ~101.2 T (1.012e14)")
+        print(f"   BTC Network Difficulty: {network_diff_fmt} ({network_diff:.2e})")
         print(f"   Your Best Share: {best_diff:.4f}")
         if best_diff > 0:
-            ratio = 1.012e14 / best_diff
+            ratio = network_diff / best_diff
             print(f"   You're ~{ratio:.2e}x away from a block!")
         
         # Fun comparison
@@ -411,6 +436,10 @@ def lottery_summary():
     shares_str = f"{shares:,}"
     best_diff_str = f"{best_diff:.4f}"
     
+    # Get real-time network difficulty
+    network_diff = get_network_difficulty()
+    network_diff_str = format_difficulty(network_diff)
+    
     summary = f"""
 🎰 AGENT LOTTERY STATUS: {status}
 
@@ -418,7 +447,7 @@ def lottery_summary():
 │  📊 SHARES (Tickets): {shares_str:>14}  │
 │  🏆 BEST DIFFICULTY:  {best_diff_str:>14}  │
 │  ⏱️  RUNNING TIME:     {running_time:>14}  │
-│  🎯 NETWORK DIFF:      101.2 Trillion  │
+│  🎯 NETWORK DIFF:      {network_diff_str:>14}  │
 └──────────────────────────────────────┘
 
 💡 What this means:
@@ -431,7 +460,7 @@ def lottery_summary():
     
     if best_diff > 0:
         # Calculate how "close" they are
-        ratio = 1.012e14 / best_diff
+        ratio = network_diff / best_diff
         if ratio < 1e10:
             # Extremely unlikely but handle it
             summary += f"\n🔥 Incredible! You're only {ratio:.2e}x away!"
