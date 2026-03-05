@@ -15,8 +15,10 @@ import sys
 import urllib.request
 from datetime import datetime
 
-# Config file path
-CONFIG_DIR = os.path.expanduser("~/.agent-lottery")
+# Config file path (store in skill directory)
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+SKILL_DIR = os.path.dirname(SCRIPT_DIR)
+CONFIG_DIR = os.path.join(SKILL_DIR, "data")
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 PID_FILE = os.path.join(CONFIG_DIR, "miner.pid")
 STATS_FILE = os.path.join(CONFIG_DIR, "stats.json")
@@ -455,7 +457,7 @@ def lottery_summary():
    Higher difficulty = closer to winning
    Block needs diff ~10^14 (very rare!)
 
-📝 Log file: ~/.agent-lottery/miner.log
+📝 Log file: {CONFIG_DIR}/miner.log
 """
     
     if best_diff > 0:

@@ -11,8 +11,10 @@ import json
 import os
 import base58
 
-# Config file path
-CONFIG_DIR = os.path.expanduser("~/.agent-lottery")
+# Config file path (store in skill directory)
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+SKILL_DIR = os.path.dirname(SCRIPT_DIR)
+CONFIG_DIR = os.path.join(SKILL_DIR, "data")
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 
 
