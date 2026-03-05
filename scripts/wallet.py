@@ -139,6 +139,43 @@ def save_wallet(wallet, pool_url="btc.casualmine.com:20001", cpu_percent=10):
     return config
 
 
+def save_address_only(address, pool_url="btc.casualmine.com:20001", cpu_percent=10):
+    """Save only address (no private key) - for users who already have a BTC address"""
+    os.makedirs(CONFIG_DIR, exist_ok=True)
+    
+    # Basic address validation
+    if not (address.startswith('1') or address.startswith('3') or address.startswith('bc1')):
+        print(f"Warning: '{address}' doesn't look like a valid Bitcoin address")
+        print("Expected: starts with 1, 3, or bc1")
+    
+    wallet = {
+        "address": address,
+        "private_key_hex": None,
+        "wif": None,
+        "imported_address_only": True
+    }
+    
+    config = {
+        "wallet": wallet,
+        "pool_url": pool_url,
+        "cpu_percent": cpu_percent,
+        "stats": {
+            "best_difficulty": 0,
+            "total_shares": 0,
+            "start_time": None,
+            "last_update": None
+        }
+    }
+    
+    with open(CONFIG_FILE, 'w') as f:
+        json.dump(config, f, indent=2)
+    
+    print(f"Configuration saved to: {CONFIG_FILE}")
+    print(f"Address: {address}")
+    print(f"Note: No private key stored - you cannot sign transactions from this skill")
+    return config
+
+
 def load_config():
     """Load configuration from file"""
     if not os.path.exists(CONFIG_FILE):
@@ -152,6 +189,7 @@ def main():
     parser = argparse.ArgumentParser(description='BTC Wallet Manager for Agent Lottery')
     parser.add_argument('--generate', action='store_true', help='Generate a new wallet')
     parser.add_argument('--import-key', type=str, help='Import wallet from private key (hex or WIF)')
+    parser.add_argument('--address', type=str, help='Use existing BTC address (no private key needed for solo mining)')
     parser.add_argument('--show', action='store_true', help='Show current wallet info')
     parser.add_argument('--pool', type=str, default="btc.casualmine.com:20001", help='Mining pool URL:port')
     parser.add_argument('--cpu', type=int, default=10, help='CPU usage percentage (1-100)')
@@ -163,12 +201,16 @@ def main():
         if config:
             print(f"=== Agent Lottery Wallet ===")
             print(f"Address: {config['wallet']['address']}")
+            if config['wallet'].get('imported_address_only'):
+                print(f"Mode: Address only (no private key)")
+            else:
+                print(f"Mode: Full wallet (has private key)")
             print(f"Pool: {config['pool_url']}")
             print(f"CPU Limit: {config['cpu_percent']}%")
             print(f"Best Difficulty: {config['stats']['best_difficulty']}")
             print(f"Total Shares: {config['stats']['total_shares']}")
         else:
-            print("No wallet configured. Use --generate or --import-key to set up.")
+            print("No wallet configured. Use --generate, --import-key, or --address to set up.")
         return
     
     if args.generate:
@@ -188,6 +230,10 @@ def main():
         print(f"Private Key (Hex): {wallet['private_key_hex']}")
         print(f"Private Key (WIF): {wallet['wif']}")
         save_wallet(wallet, args.pool, args.cpu)
+        return
+    
+    if args.address:
+        save_address_only(args.address, args.pool, args.cpu)
         return
     
     parser.print_help()
