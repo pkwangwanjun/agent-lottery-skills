@@ -1,10 +1,18 @@
 # Agent Lottery 🎰
 
-Bitcoin solo mining "lottery" using CPU power. 
+Bitcoin solo mining "lottery" using CPU power.
 
 **Entertainment-only** solo mining with extremely low probability of finding blocks — but if you do, you get the full block reward (3.125 BTC ≈ $150,000+).
 
 > ⚠️ **Disclaimer**: This is NOT serious mining. Think of it as a lottery ticket that costs nothing but CPU cycles. The odds of finding a block are astronomically low (~1 in 10^14+ per share). This is for fun, not investment.
+
+## 🚀 One-Line Install (OpenClaw)
+
+```bash
+npx skills add https://github.com/pkwangwanjun/agent-lottery-skills --skill agent-lottery
+```
+
+After installation, just say **"lottery"** to your OpenClaw agent to get started!
 
 ## Features
 
