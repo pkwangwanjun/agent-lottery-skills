@@ -1,0 +1,17 @@
+# User data - NEVER publish these!
+data/
+*.log
+*.pid
+
+# Git
+.git/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# IDE
+.vscode/
+.idea/
