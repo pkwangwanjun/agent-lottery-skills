@@ -170,14 +170,15 @@ def start_mining(cpu_percent=None, pool_url=None, address=None):
     
     os.makedirs(CONFIG_DIR, exist_ok=True)
     
-    # Initialize stats
-    config['stats'] = {
-        'best_difficulty': 0,
-        'total_shares': 0,
-        'start_time': datetime.now().isoformat(),
-        'last_update': datetime.now().isoformat()
-    }
-    save_config(config)
+    # Preserve existing stats or initialize new ones
+    if 'stats' not in config or not config['stats'].get('start_time'):
+        config['stats'] = {
+            'best_difficulty': 0,
+            'total_shares': 0,
+            'start_time': datetime.now().isoformat(),
+            'last_update': datetime.now().isoformat()
+        }
+        save_config(config)
     
     # Build cpuminer command
     # -a sha256d for Bitcoin
@@ -200,15 +201,20 @@ def start_mining(cpu_percent=None, pool_url=None, address=None):
     # Log file for cpuminer output
     log_file = os.path.join(CONFIG_DIR, "miner.log")
     
+    # Clear log file before starting (to avoid confusion with old logs)
+    if os.path.exists(log_file):
+        os.remove(log_file)
+    
     # Start miner process with output to log file
+    # Keep file handle open to avoid buffering issues
     try:
-        with open(log_file, 'w') as log_f:
-            miner_proc = subprocess.Popen(
-                miner_cmd,
-                stdout=log_f,
-                stderr=subprocess.STDOUT,
-                text=True
-            )
+        log_f = open(log_file, 'w')
+        miner_proc = subprocess.Popen(
+            miner_cmd,
+            stdout=log_f,
+            stderr=subprocess.STDOUT,
+            text=True
+        )
         
         # Save PID
         with open(PID_FILE, 'w') as f:
@@ -233,6 +239,13 @@ def start_mining(cpu_percent=None, pool_url=None, address=None):
         
         # Monitor log file for shares
         while miner_proc.poll() is None:
+            # Flush log buffer to ensure data is written to disk
+            try:
+                log_f.flush()
+                os.fsync(log_f.fileno())
+            except:
+                pass
+            
             if os.path.exists(log_file):
                 with open(log_file, 'r') as f:
                     lines = f.readlines()
@@ -272,6 +285,12 @@ def start_mining(cpu_percent=None, pool_url=None, address=None):
     except Exception as e:
         print(f"Error: {e}")
     finally:
+        # Close log file handle
+        try:
+            if 'log_f' in locals():
+                log_f.close()
+        except:
+            pass
         stop_mining()
 
 
